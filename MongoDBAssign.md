@@ -19,6 +19,8 @@ Start Shell
 
 > mongo
 
+Show Databases
+
 > show dbs
 
 admin     0.000GB
