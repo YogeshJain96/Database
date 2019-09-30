@@ -271,27 +271,24 @@ that same cuisine borough should be in descending order.
 
 28. Write a MongoDB query to know whether all the addresses contains the street or not.
 
-
+> db.restro.find({"address.street":{$exists:false}}).pretty();
 
 29. Write a MongoDB query which will select all documents in the restaurants collection
 where the coord field value is Double.
+
+ > db.restro.find({"address.coord":{$type:"double"}}).pretty();
+
 30. Write a MongoDB query which will select the restaurant Id, name and grades for those
 restaurants which returns 0 as a remainder after dividing the score by 7.
+
+> db.restro.find({"grades.score":{$mod:[7,0]}},{restaurant_id:1,name:1,grades:1}).pretty();
+
 31. Write a MongoDB query to find the restaurant name, borough, longitude and attitude and
 cuisine for those restaurants which contains 'mon' as three letters somewhere in its name.
+
+> db.restro.find({name:{$regex:/.*mon.*/}},{name:1,borough:1,"address.coord":1}).pretty();
+
 32. Write a MongoDB query to find the restaurant name, borough, longitude and latitude and
 cuisine for those restaurants which contain 'Mad' as first three letters of its name.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+> db.restro.find({name:{$regex:/^Mad.*/}},{name:1,borough:1,"address.coord":1}).pretty();
