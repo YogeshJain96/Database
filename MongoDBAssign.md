@@ -1,6 +1,6 @@
-# Mongo Assign 2
+# MongoDB Assignment
 
-> To import
+> To import json file in mongo db
 
 For Windows, write this command in bin's cmd
 
