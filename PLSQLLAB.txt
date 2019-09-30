@@ -1,0 +1,582 @@
+1. Write a function to compute the following. Function
+should take Emp_ num and return
+the cost to company.
+DA = 15% Salary, HRA= 20% of Salary, TA= 8% of Salary.
+Special Allowance will be decided based on the service in
+the company.
+
+< 1 Year Nil
+>=1 Year< 2 Year 10% of Salary
+>=2 Year< 4 Year 20% of Salary
+>4 Year 30% of Salary
+ 
+delimiter //
+create function CTC(pempno int ) returns float
+begin
+    declare psal float;
+    declare ehiredate date;
+
+    declare sa float;
+    declare tyear int;
+    declare tsal float;
+   Select sal,hiredate
+   INTO psal,ehiredate
+   From emp
+   Where empno=pempno;
+    set tyear=FLOOR(datediff(curdate(),ehiredate)/365);
+    if tyear<1 then
+    set sa=0;
+    elseif tyear<2 then
+    set sa=0.1*psal;
+    elseif tyear<4 then
+    set sa=0.2*psal;
+    else
+    set sa=0.3*psal;
+    end if;
+    set tsal=sa+psal+(0.43*psal);
+    return tsal;
+end//
+delimiter ;
+mysql> select CTC(empno) from emp;
++------------+
+| CTC(empno) |
++------------+
+|   	2768 |
+| 	2162.5 |
+|	5146.75 |
+| 	2162.5 |
+| 	4930.5 |
+| 	4238.5 |
+|   	5190 |
+|   	8650 |
+|   	2595 |
+|   	1903 |
+| 	1643.5 |
+|   	5190 |
+|   	2249 |
++------------+
+				OR
+
+
+delimiter //
+create function emp_sum(empno int ,psal int, hiredate date) returns float
+begin
+    declare sa float;
+    declare tyear int;
+    declare tsal float;
+    set tyear=FLOOR(datediff(curdate(),hiredate)/365);
+    if tyear<1 then
+    set sa=0;
+    elseif tyear<2 then
+    set sa=0.1*psal;
+    elseif tyear<4 then
+    set sa=0.2*psal;
+    else
+    set sa=0.3*psal;
+    end if;
+    set tsal=sa+psal+(0.43*psal);
+    return tsal;
+end//
+delimiter ;
+
+mysql> select empno,sal,hiredate,emp_sum(empno,sal,hiredate) from emp;
++-------+---------+------------+-----------------------------+
+| empno | sal 	| hiredate   | emp_sum(empno,sal,hiredate) |
++-------+---------+------------+-----------------------------+
+|  7369 |  800.00 | 1980-12-17 |                    	1384 |
+|  7499 | 1600.00 | 1981-02-20 |                    	2768 |
+|  7521 | 1250.00 | 1981-02-22 |                  	2162.5 |
+|  7566 | 2975.00 | 1981-04-02 |                 	5146.75 |
+|  7654 | 1250.00 | 1981-09-28 |                  	2162.5 |
+|  7698 | 2850.00 | 1981-05-01 |                  	4930.5 |
+|  7782 | 2450.00 | 1981-06-09 |                  	4238.5 |
+|  7788 | 3000.00 | 1982-12-09 |                    	5190 |
+|  7839 | 5000.00 | 1981-11-17 |                    	8650 |
+|  7844 | 1500.00 | 1981-09-08 |                    	2595 |
+|  7876 | 1100.00 | 1983-01-12 |                    	1903 |
+|  7900 |  950.00 | 1981-12-03 |                  	1643.5 |
+|  7902 | 3000.00 | 1981-12-03 |                    	5190 |
+|  7934 | 1300.00 | 1982-01-23 |                    	2249 |
+|  7369 |  800.00 | 1980-12-17 |                    	1384 |
++-------+---------+------------+-----------------------------+
+
+			OR
+
+delimiter //
+create function CTC1(pempno int) 
+returns int
+begin
+declare ehiredate date;
+declare esal int;
+
+declare TA float;
+declare HRA float;
+declare SA float;
+declare DA float;
+declare total float;
+declare exp int;
+
+select sal,hiredate
+into esal,ehiredate
+from emp
+where empno=pempno;
+
+set DA =esal*.15;
+set HRA =esal*.20;
+set TA=esal*.08;
+set exp=floor(datediff(curdate(),ehiredate)/365);
+if exp<1 then
+set SA =0;
+elseif exp<2 then 
+set SA= esal*.10;
+elseif exp<4 then 
+set SA= esal*.20;
+else
+set SA= esal*.30;
+end if;
+set total =DA+HRA+TA+SA;
+return total;
+end//
+delimiter ;
+
+mysql> select ename,CTC1(empno) from emp;
++--------+-------------+
+| ename  | CTC1(empno) |
++--------+-------------+
+| ALLEN  |        1168 |
+| WARD   |         912 |
+| JONES  |        2172 |
+| MARTIN |         912 |
+| BLAKE  |        2080 |
+| CLARK  |        1788 |
+| SCOTT  |        2190 |
+| KING   |        3650 |
+| TURNER |        1095 |
+| ADAMS  |         803 |
+| JAMES  |         694 |
+| FORD   |        2190 |
+| MILLER |         949 |
++--------+-------------+
+
+
+////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+
+
+2. Write a procedure that displays the following
+information of all emp
+Emp_Name Department Name Designation Salary Status
+Note: - Status will be (Greater, Lesser or Equal) respective
+to average salary of their own department.
+Display an error message Emp table is ty if
+there is no matching Record.	
+
+		Using CURSOR
+mysql> delimiter //
+mysql> create procedure DispEmp()
+     begin
+     declare edno int;
+     declare edname varchar(20);
+     declare ejob varchar(20);
+     declare esal int;
+     declare avgsal float;
+     declare status varchar(20);
+    
+     declare cend int default 0;
+    
+     declare mycur cursor for select e.deptno,d.dname,e.job,e.sal
+     from emp e inner join dept d
+     on d.deptno=e.deptno;
+    
+     declare continue handler for NOT FOUND set cend=1;
+    
+     open mycur;
+     label1:loop
+     fetch mycur into edno,edname,ejob,esal;
+    
+     if cend=1 then
+     leave label1;
+     end if;
+    
+     select avg(sal)
+     into avgsal
+     from emp where deptno=edno;
+    
+     if esal>avgsal then
+     set status="GREATER";
+     elseif esal<avgsal then
+     set status="LESSER";
+     else
+     set status="EQUAL";
+     end if;
+     select edname,ejob,esal,avgsal,status;
+    
+     end loop;
+     close mycur;
+     end//
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> delimiter ;
+mysql>
+mysql> call DispEmp();
++--------+----------+------+---------+---------+
+| edname | ejob     | esal | avgsal  | status  |
++--------+----------+------+---------+---------+
+| SALES  | SALESMAN | 1600 | 1383.77 | GREATER |
++--------+----------+------+---------+---------+
+1 row in set (0.00 sec)
+
++--------+----------+------+---------+--------+
+| edname | ejob     | esal | avgsal  | status |
++--------+----------+------+---------+--------+
+| SALES  | SALESMAN |  153 | 1383.77 | LESSER |
++--------+----------+------+---------+--------+
+1 row in set (0.01 sec)
+
++----------+---------+------+---------+---------+
+| edname   | ejob    | esal | avgsal  | status  |
++----------+---------+------+---------+---------+
+| RESEARCH | MANAGER | 2975 | 2518.75 | GREATER |
++----------+---------+------+---------+---------+
+1 row in set (0.02 sec)
+
++--------+----------+------+---------+--------+
+| edname | ejob     | esal | avgsal  | status |
++--------+----------+------+---------+--------+
+| SALES  | SALESMAN | 1250 | 1383.77 | LESSER |
++--------+----------+------+---------+--------+
+1 row in set (0.03 sec)
+
++--------+---------+------+---------+---------+
+| edname | ejob    | esal | avgsal  | status  |
++--------+---------+------+---------+---------+
+| SALES  | MANAGER | 2850 | 1383.77 | GREATER |
++--------+---------+------+---------+---------+
+1 row in set (0.04 sec)
+
++------------+---------+------+---------+--------+
+| edname     | ejob    | esal | avgsal  | status |
++------------+---------+------+---------+--------+
+| ACCOUNTING | MANAGER | 2450 | 2916.67 | LESSER |
++------------+---------+------+---------+--------+
+1 row in set (0.05 sec)
+
++----------+---------+------+---------+---------+
+| edname   | ejob    | esal | avgsal  | status  |
++----------+---------+------+---------+---------+
+| RESEARCH | ANALYST | 3000 | 2518.75 | GREATER |
++----------+---------+------+---------+---------+
+1 row in set (0.06 sec)
+
++------------+-----------+------+---------+---------+
+| edname     | ejob      | esal | avgsal  | status  |
++------------+-----------+------+---------+---------+
+| ACCOUNTING | PRESIDENT | 5000 | 2916.67 | GREATER |
++------------+-----------+------+---------+---------+
+1 row in set (0.07 sec)
+
++--------+----------+------+---------+---------+
+| edname | ejob     | esal | avgsal  | status  |
++--------+----------+------+---------+---------+
+| SALES  | SALESMAN | 1500 | 1383.77 | GREATER |
++--------+----------+------+---------+---------+
+1 row in set (0.08 sec)
+
++----------+-------+------+---------+--------+
+| edname   | ejob  | esal | avgsal  | status |
++----------+-------+------+---------+--------+
+| RESEARCH | CLERK | 1100 | 2518.75 | LESSER |
++----------+-------+------+---------+--------+
+1 row in set (0.09 sec)
+
++--------+-------+------+---------+--------+
+| edname | ejob  | esal | avgsal  | status |
++--------+-------+------+---------+--------+
+| SALES  | CLERK |  950 | 1383.77 | LESSER |
++--------+-------+------+---------+--------+
+1 row in set (0.10 sec)
+
++----------+---------+------+---------+---------+
+| edname   | ejob    | esal | avgsal  | status  |
++----------+---------+------+---------+---------+
+| RESEARCH | ANALYST | 3000 | 2518.75 | GREATER |
++----------+---------+------+---------+---------+
+1 row in set (0.11 sec)
+
++------------+-------+------+---------+--------+
+| edname     | ejob  | esal | avgsal  | status |
++------------+-------+------+---------+--------+
+| ACCOUNTING | CLERK | 1300 | 2916.67 | LESSER |
++------------+-------+------+---------+--------+
+1 row in set (0.12 sec)
+
+Query OK, 0 rows affected (0.13 sec)
+
+
+			OR
+
+delimiter //
+create procedure emp_details(in pempno int, out status varchar(50))
+begin
+    declare esal int;
+    declare avgsal int;
+    select avg(sal)
+    into avgsal
+    from emp
+    where deptno=(select deptno from emp where empno=pempno);
+    
+    select sal
+    into esal
+    from emp where empno=pempno;
+
+    if esal<avgsal then
+    set status='lessser';
+    elseif esal>avgsal then
+    set status='greater';
+    else
+    set status='equal';
+    end if;
+    select ename,deptno,job,sal,status from emp where empno=pempno;
+end//
+delimiter ;
+
+mysql> call emp_details(7499,@zz);
++----------+-----------+----------+---------+---------+
+| ename  | deptno  | 	job  | sal 	| status  |
++----------+-----------+----------+---------+---------+
+| ALLEN  |    30      | SALESMAN | 1600.00 | greater |
++----------+-----------+----------+---------+---------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select @zz;
++---------+
+| @zz 	|
++---------+
+| greater |
++---------+
+
+
+////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+
+
+5. Write a procedure that accept Emp_num and update
+the salary and store the old salary
+details in Emp _Back (Emp _Back has the same structure
+without any
+constraint) table.
+Exp< 2 then no Update
+Exp> 2 and < 5 then 20% of salary
+Exp> 5 then 25% of salary
+
+delimiter //
+create procedure salUpdate(in pempno int)
+begin
+declare nsal float;
+declare osal float;
+declare ehiredate date;
+declare exp int;
+select sal,hiredate
+into osal,ehiredate
+from emp
+where empno=pempno;
+
+set exp=floor(datediff(curdate(),ehiredate)/365);
+if exp<2 then 
+set nsal=osal;
+elseif exp<5 then 
+set nsal=1.2*osal;
+else
+set nsal=1.25*osal;
+end if;
+
+insert into Emp_Back values(pempno,osal,nsal);
+
+
+update emp
+set sal=nsal
+where empno=pempno;
+
+end//
+delimiter ;
+
+
+call salUpdate(7521);
+
+
+
+
+
+////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+
+
+
+
+6. Write a procedure and a function.
+Function: This function will return years of experience for a
+emp. This function will take the
+empid of the emp as an input parameter. The output will be
+rounded to the nearest year
+(1.4 year will be considered as 1 year and 1.5 year will be
+considered as 2 year).
+
+Procedure: Capture the value returned by the above
+function to calculate the additional
+allowance for the emp based on the experience.
+Additional Allowance = Year of experience x 3000
+Calculate the additional allowance and store Emp_num,
+Date of Joining, and Experience in
+years and additional allowance in Emp_Allowance table.
+
+delimiter //
+mysql>  create function EXPerience(pempno int)
+           returns int
+           begin
+           declare tyear int;
+           declare ehiredate date;
+           select hiredate
+           into ehiredate
+           from emp
+           where empno=pempno;
+           set tyear=round(datediff(curdate(),ehiredate)/365);
+           return tyear;
+           end//
+delimiter ;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+mysql> create table emp_allowance(emp_num int,DoJ date,Experience int,addallow float);
+
+mysql> delimiter //
+mysql> create procedure calAllow()
+     begin
+     declare expp int;
+     declare doj date;
+     declare enum int;
+     declare addAllow float;
+     declare cend int default 0;
+    
+     declare mycur cursor for select empno,experience(empno),hiredate
+     from emp;
+    
+     declare continue handler for NOT FOUND set cend=1;
+    
+     open mycur;
+     label1:loop
+     fetch mycur into enum,expp,doj;
+     if cend=1 then
+     leave label1;
+     end if;
+    
+     set addAllow=3000*expp;
+    
+     insert into emp_allowance values(enum,doj,expp,addAllow);
+     end loop;
+     close mycur;
+     end//
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> delimiter ;
+mysql>
+mysql> select * from emp_allowance;
+Empty set (0.00 sec)
+
+mysql> call calAllow();
+Query OK, 0 rows affected (0.17 sec)
+
+mysql> select * from emp_allowance;
++---------+------------+------------+----------+
+| emp_num | DoJ        | Experience | addallow |
++---------+------------+------------+----------+
+|    7499 | 1981-02-20 |         39 |   117000 |
+|    7521 | 1981-02-22 |         39 |   117000 |
+|    7566 | 1981-04-02 |         39 |   117000 |
+|    7654 | 1981-09-28 |         38 |   114000 |
+|    7698 | 1981-05-01 |         38 |   114000 |
+|    7782 | 1981-06-09 |         38 |   114000 |
+|    7788 | 1982-12-09 |         37 |   111000 |
+|    7839 | 1981-11-17 |         38 |   114000 |
+|    7844 | 1981-09-08 |         38 |   114000 |
+|    7876 | 1983-01-12 |         37 |   111000 |
+|    7900 | 1981-12-03 |         38 |   114000 |
+|    7902 | 1981-12-03 |         38 |   114000 |
+|    7934 | 1982-01-23 |         38 |   114000 |
++---------+------------+------------+----------+
+13 rows in set (0.00 sec)
+
+
+Q2. Trigger
+1. Write a trigger which add entry in audit table when user
+tries to insert or delete records in employee table on sat
+or sun
+
+mysql> create table empAudit(empno int, AddedOn date);
+
+mysql> create trigger addEmp before insert on emp FOR EACH ROW
+    -> insert into empAudit values(NEW.empno,curdate());
+
+mysql> insert into emp values(9912,'QWSE','CEO',5555,date(curdate()),9999,999,10);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from empAUDIT;
++-------+------------+
+| empno | AddedOn    |
++-------+------------+
+|  9912 | 2019-09-29 |
++-------+------------+
+////////////////////////////////////////////////////////////////////
+
+mysql> create table empDelAudit(empno int,deptno int,hiredate date,sal int,DeletedOn date);
+
+mysql> create trigger delEmp before delete on emp FOR EACH ROW
+    -> insert into empDelAudit values(old.empno,old.deptno,old.hiredate,old.sal,curdate());
+
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> delete from emp where empno=1212;
+Query OK, 1 row affected (0.10 sec)
+
+mysql> select * from empDelAudit;
++-------+--------+------------+------+------------+
+| empno | deptno | hiredate   | sal  | DeletedOn  |
++-------+--------+------------+------+------------+
+|  1212 |     10 | 2019-09-29 | 9999 | 2019-09-29 |
++-------+--------+------------+------+------------+
+
+2. Create table order_history. Write a trigger to store old
+qty and old cost of order in history table before you
+update qty and cost of order.
+
+
+mysql> create table sal_history(empno int,osal int,ocomm float,UpdatedOn date);
+
+mysql> create trigger salAudit BEFORE UPDATE on emp FOR EACH ROW
+    -> insert into sal_history values(old.empno,old.sal,old.comm,curdate());
+
+mysql> update emp
+    -> set sal=999,comm=78.0
+    -> where deptno=20;
+
+mysql> select * from sal_history;
++-------+------+-------+------------+
+| empno | osal | ocomm | UpdatedOn  |
++-------+------+-------+------------+
+|  7782 |  999 |    78 | 2019-09-29 |
+|  7839 |  999 |    78 | 2019-09-29 |
+|  7934 |  999 |    78 | 2019-09-29 |
+|  9912 |  999 |    78 | 2019-09-29 |
++-------+------+-------+------------+
+
+
+
+
+
+
+
+
+
+
+
+
