@@ -1,11 +1,25 @@
 # Mongo Assign 2
 
-* To import, write this command in bin's cmd
-> mongoimport --db myd1 --collection restro --file c:/samplerestro.json
+> To import
+
+For Windows, write this command in bin's cmd
+
+``` 
+mongoimport --db mydb1 --collection restro --file c:/samplerestro.json
+```
+For Ubuntu, write this command in root terminal
+```
+mongoimport -d mydb1 -c restro --file /home/yogesh/Desktop/mongodb/samplerestro.json      
+```
+Start Server
+
+> mongod
+
+Start Shell
 
 > mongo
 
-> show databases;
+> show dbs
 
 admin     0.000GB
 config    0.000GB
