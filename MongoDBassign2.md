@@ -8,7 +8,17 @@ Vaidya”,sal:40000.00,dept:{deptno12,dname:,”Hr”,dloc:”Mumbai},
 Desg:”Analyst”,mgr:{name:”Satish”,num:111},project:[{name:”Project-
 1”,Hrs:4},{name:”project- 2”,Hrs:4}]}
 ```
+```
+db.emp.insert({emono:111,ename:"Deepali Vaidya",sal:40000.00,dept:{deptno:12,dname:"Hr",dloc:"Mumbai",desg:"Analyst"},mgr:{name:"Satish",num:111},project:[{name:"project-1",hrs:4},{name:"project-2",hrs:4}]});
 
+db.emp.insert({emono:222,ename:"Aalia Bhatt",sal:50000.00,dept:{deptno:12,dname:"Hr",dloc:"Pune",desg:"Analyst"},mgr:{name:"Raghav Ag",num:555},project:[{name:"project-1",hrs:1},{name:"project-3",hrs:7}]});
+
+db.emp.insert({emono:333,ename:"Naira Rustogi",sal:7000.00,dept:{deptno:22,dname:"Accounts",dloc:"Bengaluru",desg:"Clerk"},mgr:{name:"Satish",num:111},project:[{name:"project-2",hrs:4},{name:"project-4",hrs:5}]});
+
+db.emp.insert({emono:444,ename:"Adi Ag",sal:80000.00,dept:{deptno:12,dname:"Sales",dloc:"Hyderabad",desg:"Analyst"},mgr:{name:"Satish",num:111},project:[{name:"project-5",hrs:4},{name:"project-2",hrs:4}]});
+
+db.emp.insert({emono:555,ename:"Raghav Ag",sal:90000.00,dept:{deptno:22,dname:"Executive",dloc:"Delhi",desg:"AVP"},mgr:{name:"Satish",num:111},project:[{name:"project-3",hrs:4},{name:"project-3",hrs:5}]});
+```
 1. All Employee’s with the desg as ‘CLERK’ are now called as (AO) Administrative Officers.
 Update the Employee collection for this.
 2. Change the number of hours for project-1 to 5 for all employees with designation analyst.
