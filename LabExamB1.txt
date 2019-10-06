@@ -1,0 +1,244 @@
+Q1.>
+mysql>CREATE TABLE customer(
+   custid  int(11) NOT NULL,
+   cname  varchar(20) NOT NULL,
+   adharnum  varchar(20) NOT NULL UNIQUE,
+   city  varchar(20),
+   state  varchar(20),
+  PRIMARY KEY ( custid ))
+
+mysql>CREATE TABLE order1 (
+   orderid  int(11) NOT NULL,
+   orderdate  date NOT NULL,
+   orderamt  varchar(20),
+   custid  int(11),
+  PRIMARY KEY ( orderid ),
+  FOREIGN KEY ( custid ) REFERENCES  customer  ( custid ))
+
+mysql> desc customer;
++----------+-------------+------+-----+---------+-------+
+| Field    | Type        | Null | Key | Default | Extra |
++----------+-------------+------+-----+---------+-------+
+| custid   | int(11)     | NO   | PRI | NULL    |       |
+| cname    | varchar(20) | NO   |     | NULL    |       |
+| adharnum | varchar(20) | NO   | UNI | NULL    |       |
+| city     | varchar(20) | YES  |     | NULL    |       |
+| state    | varchar(20) | YES  |     | NULL    |       |
++----------+-------------+------+-----+---------+-------+
+
+mysql> desc order1;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| orderid   | int(11)     | NO   | PRI | NULL    |       |
+| orderdate | date        | NO   |     | NULL    |       |
+| orderamt  | varchar(20) | YES  |     | NULL    |       |
+| custid    | int(11)     | YES  | MUL | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+
+mysql> select * from customer;
++--------+---------+----------+----------+-------------+
+| custid | cname   | adharnum | city     | state       |
++--------+---------+----------+----------+-------------+
+|    101 | Apurv   | 1443223  | Jaipur   | Raj         |
+|    102 | Akash   | 3113123  | Jaunpur  | UP          |
+|    103 | Omkar   | 3463021  | Talegaon | Mahrashtra  |
+|    104 | Yogesh  | 8885636  | Raipur   | Chattisgarh |
+|    105 | Pankaj  | 3412900  | Jaipur   | Raj         |
+|    106 | Gurdeep | 9650003  | Jaunpur  | UP          |
+|    107 | Pranav  | 7500350  | Talegaon | Mahrashtra  |
+|    108 | Gaurav  | 7060405  | Mumbai   | Maharashtra |
++--------+---------+----------+----------+-------------+
+
+mysql> select * from order1;
++---------+------------+----------+--------+
+| orderid | orderdate  | orderamt | custid |
++---------+------------+----------+--------+
+|    1452 | 2017-01-23 | 150      |    101 |
+|    1635 | 2018-06-01 | 55       |    102 |
+|    1865 | 2018-08-01 | 32       |    103 |
+|    2145 | 2018-12-01 | 345      |    106 |
+|    2345 | 2018-04-01 | 3242     |    103 |
+|    2645 | 2018-09-01 | 788      |    104 |
+|    3211 | 2018-02-01 | 456      |    101 |
+|    3343 | 2018-07-01 | 8646     |    102 |
+|    3413 | 2018-09-01 | 9545     |    106 |
+|    6655 | 2018-05-01 | 98       |    102 |
+|    7401 | 2018-10-01 | 552      |    104 |
+|    7565 | 2018-03-01 | 654      |    101 |
+|    7919 | 2018-12-01 | 999      |    105 |
+|    8090 | 2018-11-01 | 24       |    106 |
+|    9711 | 2018-11-01 | 193      |    105 |
++---------+------------+----------+--------+
+
+1.mysql> select * from customer
+    -> where city in (select city from customer where cname like 'Akash');
++--------+---------+----------+---------+-------+
+| custid | cname   | adharnum | city    | state |
++--------+---------+----------+---------+-------+
+|    102 | Akash   | 3113123  | Jaunpur | UP    |
+|    106 | Gurdeep | 9650003  | Jaunpur | UP    |
++--------+---------+----------+---------+-------+
+
+2.mysql> select * from customer c left join order1 o1
+    -> on c.custid=o1.custid
+    -> where o1.orderamt>(select avg(orderamt) from order1 o2 where o2.custid=o1.custid group by o2.custid)
+    -> order by 1;
++--------+---------+----------+----------+-------------+---------+------------+----------+--------+
+| custid | cname   | adharnum | city     | state       | orderid | orderdate  | orderamt | custid |
++--------+---------+----------+----------+-------------+---------+------------+----------+--------+
+|    101 | Apurv   | 1443223  | Jaipur   | Raj         |    3211 | 2018-02-01 | 456      |    101 |
+|    101 | Apurv   | 1443223  | Jaipur   | Raj         |    7565 | 2018-03-01 | 654      |    101 |
+|    102 | Akash   | 3113123  | Jaunpur  | UP          |    3343 | 2018-07-01 | 8646     |    102 |
+|    103 | Omkar   | 3463021  | Talegaon | Mahrashtra  |    2345 | 2018-04-01 | 3242     |    103 |
+|    104 | Yogesh  | 8885636  | Raipur   | Chattisgarh |    2645 | 2018-09-01 | 788      |    104 |
+|    105 | Pankaj  | 3412900  | Jaipur   | Raj         |    7919 | 2018-12-01 | 999      |    105 |
+|    106 | Gurdeep | 9650003  | Jaunpur  | UP          |    3413 | 2018-09-01 | 9545     |    106 |
++--------+---------+----------+----------+-------------+---------+------------+----------+--------+
+
+3.mysql> select * from customer left join order1
+    -> on order1.custid=customer.custid
+    -> having order1.orderid is null;
++--------+--------+----------+----------+-------------+---------+-----------+----------+--------+
+| custid | cname  | adharnum | city     | state       | orderid | orderdate | orderamt | custid |
++--------+--------+----------+----------+-------------+---------+-----------+----------+--------+
+|    107 | Pranav | 7500350  | Talegaon | Mahrashtra  |    NULL | NULL      | NULL     |   NULL |
+|    108 | Gaurav | 7060405  | Mumbai   | Maharashtra |    NULL | NULL      | NULL     |   NULL |
++--------+--------+----------+----------+-------------+---------+-----------+----------+--------+
+
+===============================================================================
+===============================================================================
+
+Q.2>
+
+drop procedure if exists ordtype;
+
+delimiter //
+
+create procedure ordtype()
+begin
+
+declare otype varchar(20);
+declare oid int;
+declare oamt int;
+declare odate date;
+declare ocid int;
+declare cend int default 0;
+
+declare mycur cursor for select orderid,orderamt,orderdate,custid from order1;
+
+declare continue handler for NOT FOUND set cend=1;
+
+open mycur;
+label1:loop
+
+fetch mycur into oid,oamt,odate,ocid;
+
+if cend=1 then
+leave label1;
+end if;
+
+if oamt>5000 then
+set otype="express";
+elseif oamt>=3000 then
+set otype="fast";
+else
+set otype="regular";
+end if;
+
+select oid,odate,oamt,ocid,otype;
+
+end loop;
+close mycur;
+
+end//
+
+delimiter ;
+
+===============================================================================
+===============================================================================
+Q.3>
+> use labexamb1
+
+> db.cust.insert({custid:111,custname:'Apurv',city:'Pune',creditamt:5000});
+
+> db.cust.insert({custid:222,custname:'Yogi',city:'Pune',creditamt:3000});
+
+> db.cust.insert({custid:333,custname:'Akash',city:'Apinapur',creditamt:2500});
+
+> db.cust.insert({custid:444,custname:'Omkar',city:'Talegaon',creditamt:1000});
+
+> db.cust.insert({custid:555,custname:'Vishal',city:'Kalyan',creditamt:8000});
+
+===============================================================================
+
+> db.cust.find().pretty();
+{
+        "_id" : ObjectId("5d9a17e540702a028ec29446"),
+        "custid" : 111,
+        "custname" : "Apurv",
+        "city" : "Pune",
+        "creditamt" : 5000
+}
+{
+        "_id" : ObjectId("5d9a189940702a028ec29447"),
+        "custid" : 222,
+        "custname" : "Yogi",
+        "city" : "Pune",
+        "creditamt" : 3000
+}
+{
+        "_id" : ObjectId("5d9a189940702a028ec29448"),
+        "custid" : 333,
+        "custname" : "Akash",
+        "city" : "Apinapur",
+        "creditamt" : 2500
+}
+{
+        "_id" : ObjectId("5d9a189940702a028ec29449"),
+        "custid" : 444,
+        "custname" : "Omkar",
+        "city" : "Talegaon",
+        "creditamt" : 1000
+}
+{
+        "_id" : ObjectId("5d9a189a40702a028ec2944a"),
+        "custid" : 555,
+        "custname" : "Vishal",
+        "city" : "Kalyan",
+        "creditamt" : 8000
+}
+===============================================================================
+1.
+> db.cust.find({city:/^.p.*/}).pretty();
+{
+        "_id" : ObjectId("5d9a189940702a028ec29448"),
+        "custid" : 333,
+        "custname" : "Akash",
+        "city" : "Apinapur",
+        "creditamt" : 2500
+}
+===============================================================================
+2.
+> db.cust.find({creditamt:{$in:[5000,3000,2500]}}).pretty();
+{
+        "_id" : ObjectId("5d9a17e540702a028ec29446"),
+        "custid" : 111,
+        "custname" : "Apurv",
+        "city" : "Pune",
+        "creditamt" : 5000
+}
+{
+        "_id" : ObjectId("5d9a189940702a028ec29447"),
+        "custid" : 222,
+        "custname" : "Yogi",
+        "city" : "Pune",
+        "creditamt" : 3000
+}
+{
+        "_id" : ObjectId("5d9a189940702a028ec29448"),
+        "custid" : 333,
+        "custname" : "Akash",
+        "city" : "Apinapur",
+        "creditamt" : 2500
+}
