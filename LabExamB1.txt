@@ -1,6 +1,6 @@
 Q1.>
 mysql>CREATE TABLE customer(
-   custid  int(11) NOT NULL,
+   custid  int NOT NULL,
    cname  varchar(20) NOT NULL,
    adharnum  varchar(20) NOT NULL UNIQUE,
    city  varchar(20),
@@ -8,10 +8,10 @@ mysql>CREATE TABLE customer(
   PRIMARY KEY ( custid ))
 
 mysql>CREATE TABLE order1 (
-   orderid  int(11) NOT NULL,
+   orderid  int NOT NULL,
    orderdate  date NOT NULL,
    orderamt  int,
-   custid  int(11),
+   custid  int,
   PRIMARY KEY ( orderid ),
   FOREIGN KEY ( custid ) REFERENCES  customer  ( custid ))
 
