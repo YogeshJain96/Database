@@ -10,7 +10,7 @@ mysql>CREATE TABLE customer(
 mysql>CREATE TABLE order1 (
    orderid  int(11) NOT NULL,
    orderdate  date NOT NULL,
-   orderamt  varchar(20),
+   orderamt  int,
    custid  int(11),
   PRIMARY KEY ( orderid ),
   FOREIGN KEY ( custid ) REFERENCES  customer  ( custid ))
@@ -32,7 +32,7 @@ mysql> desc order1;
 +-----------+-------------+------+-----+---------+-------+
 | orderid   | int(11)     | NO   | PRI | NULL    |       |
 | orderdate | date        | NO   |     | NULL    |       |
-| orderamt  | varchar(20) | YES  |     | NULL    |       |
+| orderamt  | int(11)     | YES  |     | NULL    |       |
 | custid    | int(11)     | YES  | MUL | NULL    |       |
 +-----------+-------------+------+-----+---------+-------+
 
@@ -261,8 +261,52 @@ mysql> call ordtype();
 +------+------------+------+------+---------+
 1 row in set (0.54 sec)
 
+
+OR
+
+
+drop procedure if exists ordtype2;
+
+delimiter //
+
+create procedure ordtype2()
+begin
+
+select *,"Express" as "Order Type" from order1 where orderamt>5000
+UNION DISTINCT
+select *,"Fast" as "Order Type" from order1 where orderamt>3000 and orderamt<=5000
+UNION DISTINCT
+select *,"Regular" as "Order Type" from order1 where orderamt<=3000;
+
+end//
+
+delimiter ;
+
+mysql> call ordtype2();
++---------+------------+----------+--------+------------+
+| orderid | orderdate  | orderamt | custid | Order Type |
++---------+------------+----------+--------+------------+
+|    3343 | 2018-07-01 | 8646     |    102 | Express    |
+|    3413 | 2018-09-01 | 9545     |    106 | Express    |
+|    2345 | 2018-04-01 | 3242     |    103 | Fast       |
+|    1452 | 2017-01-23 | 150      |    101 | Regular    |
+|    1635 | 2018-06-01 | 55       |    102 | Regular    |
+|    1865 | 2018-08-01 | 32       |    103 | Regular    |
+|    2145 | 2018-12-01 | 345      |    106 | Regular    |
+|    2645 | 2018-09-01 | 788      |    104 | Regular    |
+|    3211 | 2018-02-01 | 456      |    101 | Regular    |
+|    6655 | 2018-05-01 | 98       |    102 | Regular    |
+|    7401 | 2018-10-01 | 552      |    104 | Regular    |
+|    7565 | 2018-03-01 | 654      |    101 | Regular    |
+|    7919 | 2018-12-01 | 999      |    105 | Regular    |
+|    8090 | 2018-11-01 | 24       |    106 | Regular    |
+|    9711 | 2018-11-01 | 193      |    105 | Regular    |
++---------+------------+----------+--------+------------+
+
 ===============================================================================
 ===============================================================================
+
+
 Q.3>
 > use labexamb1
 
