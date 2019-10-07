@@ -1,0 +1,248 @@
+1).MySQL Queries
+
+//Creating Table Salesman
+
+create table salesman(
+sno int(5) PRIMARY KEY,
+sname varchar(30) NOT NULL,
+email varchar(20) NOT NULL UNIQUE,
+city varchar(10),
+start_year date,
+commission int(7)
+);
+
+mysql> desc salesman;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| sno        | int(5)      | NO   | PRI | NULL    |       |
+| sname      | varchar(30) | NO   |     | NULL    |       |
+| email      | varchar(20) | NO   | UNI | NULL    |       |
+| city       | varchar(10) | YES  |     | NULL    |       |
+| start_year | date        | YES  |     | NULL    |       |
+| commission | int(7)      | YES  |     | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+
+==============================================================================
+
+//Creating Table Tour
+
+create table tour(
+tourid int(5) PRIMARY KEY,
+fromcity varchar(30) NOT NULL,
+tocity varchar(20),
+total_seat int(3),
+sid int(5),
+FOREIGN KEY(sid) REFERENCES salesman(sno)
+);
+
+mysql> desc tour;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| tourid     | int(5)      | NO   | PRI | NULL    |       |
+| fromcity   | varchar(30) | NO   |     | NULL    |       |
+| tocity     | varchar(20) | YES  |     | NULL    |       |
+| total_seat | int(3)      | YES  |     | NULL    |       |
+| sid        | int(5)      | YES  | MUL | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+
+==============================================================================
+
+//Inserting Rows in Salesman
+
+insert into salesman VALUES(
+111,"Raghav","Rag@gmail.com","Pune","2019-01-01",1500);
+
+insert into salesman VALUES(
+222,"Abhijeet","abhi@gmail.com","Pune","2018-01-01",1200);
+
+insert into salesman VALUES(
+333,"Atul","atul@gmail.com","Raipur","2019-01-01",2000);
+
+insert into salesman VALUES(
+444,"Adhish","adhish@gmail.com","Bengaluru","2019-01-01",1000);
+
+insert into salesman VALUES(
+555,"Apurv","apurv@gmail.com","Mumbai","2019-01-01",100);
+
+mysql> select * from salesman;
++-----+----------+------------------+-----------+------------+------------+
+| sno | sname    | email            | city      | start_year | commission |
++-----+----------+------------------+-----------+------------+------------+
+| 111 | Raghav   | Rag@gmail.com    | Pune      | 2019-01-01 |       1500 |
+| 222 | Abhijeet | abhi@gmail.com   | Pune      | 2018-01-01 |       1200 |
+| 333 | Atul     | atul@gmail.com   | Raipur    | 2019-01-01 |       2000 |
+| 444 | Adhish   | adhish@gmail.com | Bengaluru | 2019-01-01 |       1000 |
+| 555 | Apurv    | apurv@gmail.com  | Mumbai    | 2019-01-01 |        100 |
++-----+----------+------------------+-----------+------------+------------+
+
+==============================================================================
+
+//Inserting Rows in Tour
+
+insert into tour VALUES(
+101,"Mumbai","Goa",17,111);
+
+insert into tour VALUES(
+102,"Pune","Mahabaleshwar",22,111);
+
+insert into tour VALUES(
+103,"Mumbai","Lonavala",35,222);
+
+insert into tour VALUES(
+104,"Pune","Shirdi",51,333);
+
+insert into tour VALUES(
+105,"Delhi","Vrindavan",27,444);
+
+mysql> select * from tour;
++--------+----------+---------------+------------+------+
+| tourid | fromcity | tocity        | total_seat | sid  |
++--------+----------+---------------+------------+------+
+|    101 | Mumbai   | Goa           |         17 |  111 |
+|    102 | Pune     | Mahabaleshwar |         22 |  111 |
+|    103 | Mumbai   | Lonavala      |         35 |  222 |
+|    104 | Pune     | Shirdi        |         51 |  333 |
+|    105 | Delhi    | Vrindavan     |         27 |  444 |
++--------+----------+---------------+------------+------+
+
+==============================================================================
+
+1.1)List of all salesman who arrange tour from mumbai to goa
+
+select s.sno,s.sname from salesman s inner join tour t
+on s.sno=t.sid
+where t.fromcity="mumbai"
+and t.tocity="goa";
+
+mysql> select s.sno,s.sname from salesman s inner join tour t
+    -> on s.sno=t.sid
+    -> where t.fromcity="mumbai"
+    -> and t.tocity="goa";
++-----+--------+
+| sno | sname  |
++-----+--------+
+| 111 | Raghav |
++-----+--------+
+
+
+1.2)Find no. of tours arranged by each salesman in pune, order it by descending no. of trips
+
+select s.sno,s.sname,s.city,count(*) as "No. Of Trips" from salesman s left join tour t
+on t.sid=s.sno
+where s.city="Pune"
+group by t.sid
+order by count(*) desc;
+
+mysql> select s.sno,s.sname,s.city,count(*) as "No. Of Trips" from salesman s left join tour t
+    -> on t.sid=s.sno
+    -> where s.city="Pune"
+    -> group by t.sid
+    -> order by count(*) desc;
++-----+----------+------+--------------+
+| sno | sname    | city | No. Of Trips |
++-----+----------+------+--------------+
+| 111 | Raghav   | Pune |            2 |
+| 222 | Abhijeet | Pune |            1 |
++-----+----------+------+--------------+
+
+
+1.3)List of all salesman who have not arranged any tour
+
+select * from salesman s left join tour t
+on s.sno=t.sid
+where tourid is null;
+
+mysql> select * from salesman s left join tour t
+    -> on s.sno=t.sid
+    -> where tourid is null;
++-----+-------+-----------------+--------+------------+------------+--------+----------+--------+------------+------+
+| sno | sname | email           | city   | start_year | commission | tourid | fromcity | tocity | total_seat | sid  |
++-----+-------+-----------------+--------+------------+------------+--------+----------+--------+------------+------+
+| 555 | Apurv | apurv@gmail.com | Mumbai | 2019-01-01 |        100 |   NULL | NULL     | NULL   |       NULL | NULL |
++-----+-------+-----------------+--------+------------+------------+--------+----------+--------+------------+------+
+
+===========================================================================================
+===========================================================================================
+
+2).Trigger Queries
+
+//Creating Table Tour Audit
+
+create table touraudit(
+tourno int,
+tourname varchar(50),
+date_deleted date
+);
+
+//Creating Trigger
+
+drop trigger if exists trg;
+
+create trigger trg BEFORE delete on tour
+for each row insert into touraudit values(old.tourid,concat(old.fromcity,"-",old.tocity),curdate());
+
+
+================================================================================
+
+mysql> create trigger trg BEFORE delete on tour
+    -> for each row insert into touraudit values(old.tourid,concat(old.fromcity,"-",old.tocity),curdate());
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> delete from tour
+    -> where tourid=105;
+Query OK, 1 row affected (0.06 sec)
+
+mysql> select * from touraudit;
++--------+-----------------+--------------+
+| tourno | tourname        | date_deleted |
++--------+-----------------+--------------+
+|    105 | Delhi-Vrindavan | 2019-10-07   |
++--------+-----------------+--------------+
+1 row in set (0.00 sec)
+
+===================================================================================
+===================================================================================
+
+3).MongoDB Queries
+
+> use mydb1
+
+> db.tour.insert({tourid:111,tname:"MumbaiGoa",from:"Mumbai",to:"Goa",total_seat:17});
+
+> db.tour.insert({tourid:222,tname:"MumbaiLonavala",from:"Mumbai",to:"Lonavala",total_seat:35});
+
+> db.tour.insert({tourid:333,tname:"PuneShirdi",from:"Pune",to:"Shirdi",total_seat:51});
+
+> db.tour.insert({tourid:444,tname:"PuneMahabaleshwar",from:"Pune",to:"Mahabalsehwar",total_seat:22});
+
+> db.tour.insert({tourid:555,tname:"DelhiVrindavan",from:"Delhi",to:"Vrindavan",total_seat:27});
+
+> db.tour.find();
+{ "_id" : ObjectId("5d9ace9bfb3d8935423a7cb1"), "tourid" : 111, "tname" : "MumbaiGoa", "from" : "Mumbai", "to" : "Goa", "total_seat" : 17 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb2"), "tourid" : 222, "tname" : "MumbaiLonavala", "from" : "Mumbai", "to" : "Lonavala", "total_seat" : 35 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb3"), "tourid" : 333, "tname" : "PuneShirdi", "from" : "Pune", "to" : "Shirdi", "total_seat" : 51 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb4"), "tourid" : 444, "tname" : "PuneMahabaleshwar", "from" : "Pune", "to" : "Mahabalsehwar", "total_seat" : 22 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb5"), "tourid" : 555, "tname" : "DelhiVrindavan", "from" : "Delhi", "to" : "Vrindavan", "total_seat" : 27 }
+
+==============================================================================================================================
+
+
+3.1)Displaying tourid and tname for all trips with total_seat>30
+
+> db.tour.find({total_seat:{$gt:30}},{tourid:1,tname:1,_id:0});
+{ "tourid" : 222, "tname" : "MumbaiLonavala" }
+{ "tourid" : 333, "tname" : "PuneShirdi" } 
+
+3.2)Increase Total Seat by 20 for all trips from mumbai to goa
+
+> db.tour.update({from:"Mumbai",to:"Goa"},{$inc:{total_seat:20}},{multi:true});
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+> db.tour.find();
+{ "_id" : ObjectId("5d9ace9bfb3d8935423a7cb1"), "tourid" : 111, "tname" : "MumbaiGoa", "from" : "Mumbai", "to" : "Goa", "total_seat" : 37 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb2"), "tourid" : 222, "tname" : "MumbaiLonavala", "from" : "Mumbai", "to" : "Lonavala", "total_seat" : 35 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb3"), "tourid" : 333, "tname" : "PuneShirdi", "from" : "Pune", "to" : "Shirdi", "total_seat" : 51 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb4"), "tourid" : 444, "tname" : "PuneMahabaleshwar", "from" : "Pune", "to" : "Mahabalsehwar", "total_seat" : 22 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb5"), "tourid" : 555, "tname" : "DelhiVrindavan", "from" : "Delhi", "to" : "Vrindavan", "total_seat" : 27 }  

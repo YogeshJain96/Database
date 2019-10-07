@@ -1,0 +1,35 @@
+2).Trigger Queries
+
+//Creating Table Tour Audit
+
+create table touraudit(
+tourno int,
+tourname varchar(50),
+date_deleted date
+);
+
+//Creating Trigger
+
+drop trigger if exists trg;
+
+create trigger trg BEFORE delete on tour
+for each row insert into touraudit values(old.tourid,concat(old.fromcity,"-",old.tocity),curdate());
+
+
+================================================================================
+
+mysql> create trigger trg BEFORE delete on tour
+    -> for each row insert into touraudit values(old.tourid,concat(old.fromcity,"-",old.tocity),curdate());
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> delete from tour
+    -> where tourid=105;
+Query OK, 1 row affected (0.06 sec)
+
+mysql> select * from touraudit;
++--------+-----------------+--------------+
+| tourno | tourname        | date_deleted |
++--------+-----------------+--------------+
+|    105 | Delhi-Vrindavan | 2019-10-07   |
++--------+-----------------+--------------+
+1 row in set (0.00 sec)

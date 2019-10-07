@@ -1,0 +1,41 @@
+3).MongoDB Queries
+
+> use mydb1
+
+> db.tour.insert({tourid:111,tname:"MumbaiGoa",from:"Mumbai",to:"Goa",total_seat:17});
+
+> db.tour.insert({tourid:222,tname:"MumbaiLonavala",from:"Mumbai",to:"Lonavala",total_seat:35});
+
+> db.tour.insert({tourid:333,tname:"PuneShirdi",from:"Pune",to:"Shirdi",total_seat:51});
+
+> db.tour.insert({tourid:444,tname:"PuneMahabaleshwar",from:"Pune",to:"Mahabalsehwar",total_seat:22});
+
+> db.tour.insert({tourid:555,tname:"DelhiVrindavan",from:"Delhi",to:"Vrindavan",total_seat:27});
+
+> db.tour.find();
+{ "_id" : ObjectId("5d9ace9bfb3d8935423a7cb1"), "tourid" : 111, "tname" : "MumbaiGoa", "from" : "Mumbai", "to" : "Goa", "total_seat" : 17 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb2"), "tourid" : 222, "tname" : "MumbaiLonavala", "from" : "Mumbai", "to" : "Lonavala", "total_seat" : 35 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb3"), "tourid" : 333, "tname" : "PuneShirdi", "from" : "Pune", "to" : "Shirdi", "total_seat" : 51 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb4"), "tourid" : 444, "tname" : "PuneMahabaleshwar", "from" : "Pune", "to" : "Mahabalsehwar", "total_seat" : 22 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb5"), "tourid" : 555, "tname" : "DelhiVrindavan", "from" : "Delhi", "to" : "Vrindavan", "total_seat" : 27 }
+
+==============================================================================================================================
+
+
+3.1)Displaying tourid and tname for all trips with total_seat>30
+
+> db.tour.find({total_seat:{$gt:30}},{tourid:1,tname:1,_id:0});
+{ "tourid" : 222, "tname" : "MumbaiLonavala" }
+{ "tourid" : 333, "tname" : "PuneShirdi" } 
+
+3.2)Increase Total Seat by 20 for all trips from mumbai to goa
+
+> db.tour.update({from:"Mumbai",to:"Goa"},{$inc:{total_seat:20}},{multi:true});
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+
+> db.tour.find();
+{ "_id" : ObjectId("5d9ace9bfb3d8935423a7cb1"), "tourid" : 111, "tname" : "MumbaiGoa", "from" : "Mumbai", "to" : "Goa", "total_seat" : 37 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb2"), "tourid" : 222, "tname" : "MumbaiLonavala", "from" : "Mumbai", "to" : "Lonavala", "total_seat" : 35 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb3"), "tourid" : 333, "tname" : "PuneShirdi", "from" : "Pune", "to" : "Shirdi", "total_seat" : 51 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb4"), "tourid" : 444, "tname" : "PuneMahabaleshwar", "from" : "Pune", "to" : "Mahabalsehwar", "total_seat" : 22 }
+{ "_id" : ObjectId("5d9acfb3fb3d8935423a7cb5"), "tourid" : 555, "tname" : "DelhiVrindavan", "from" : "Delhi", "to" : "Vrindavan", "total_seat" : 27 }  
