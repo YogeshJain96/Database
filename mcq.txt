@@ -1,0 +1,48 @@
+relation->Table
+tuple->Rows
+attributes->Column
+
+The tuples of the relations can be of ________ order.
+a) Any
+
+Which one of the following is a set of one or more attributes taken collectively to uniquely identify a record?
+>> Super key
+Super key is the superset of all the keys in a relation. 
+
+The relation with the attribute which is the primary key is referenced in another relation. The relation which has the attribute as a primary key is called
+>> Referencing relation
+
+
+The ______ is the one in which the primary key of one relation is used as a normal attribute in another relation.
+>> Referenced relation
+
+A _________ integrity constraint requires that the values appearing in specified attributes of any tuple in the referencing relation also appear in specified attributes of at least one tuple in the referenced relation.
+>> Referential
+
+A relation, say r1, may include among its attributes the primary key of another relation, say r2. This attribute is called a foreign key from r1, referencing r2. The relation r1 is also called the referencing relation of the foreign key dependency, and r2 is called the referenced relation of the foreign key.
+
+
+Which one of the following is a procedural language?
+>> Relational algebra
+Explanation: Domain and Tuple relational calculus are non-procedural language. Query language is a method through which database entries can be accessed. 
+
+The _________ provides a set of operations that take one or more relations as input and return a relation as an output.
+>> Relational algebra
+
+____ operator is used for appending two strings.
+>> ||
+
+The number of attributes in relation is called as its
+>>Degree
+
+Join is by Befault INNER JOIN
+
+SQL applies predicates in the _______ clause after groups have been formed, so aggregate functions may be used.
+>>With
+
+The ________ keyword is used to access attributes of preceding tables or subqueries in the from clause.
+>> Lateral
+
+Which of the following creates a temporary relation for the query on which it is defined?
+>> With
+
