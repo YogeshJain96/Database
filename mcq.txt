@@ -46,5 +46,13 @@ The ________ keyword is used to access attributes of preceding tables or subquer
 Which of the following creates a temporary relation for the query on which it is defined?
 >> With
 
+
 Subqueries cannot:
 >>Join tables
+
+R, S is equivalent to
+>> R cross join S
+
+5 Types Of Joins are inner join, left outer join, right outer join, full join, cross join. 
+
+Join can be replaced by inner join by default.
